@@ -47,57 +47,68 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: selectedActor == null
-          ? searchComponent()
-          : FadeIn(
-            child: Row(
-                children: [
-                  Expanded(child: searchComponent()),
-                  Expanded(
-                      child: Container(
-                    height: height(context),
-                    margin: EdgeInsets.only(top: 30, bottom: 30, right: 30),
-                    decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20)),
-                    child: FutureBuilder(
-                      future: getMoviesWithCast(selectedActor?.id ?? 0),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(
-                            child: SpinKitChasingDots(color: Colors.white),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text(
-                            'Error: ${snapshot.error}',
-                            style: TextStyle(color: Colors.white),
-                          );
-                        } else {
-                          final List<Movie> movies = snapshot.data as List<Movie>;
-                          return movies.isEmpty
-                              ? FadeIn(
-                                child: Center(
-                                    child: Text(
-                                      "No Movies found for ${selectedActor?.name ?? "N/A"}\nMaybe they're starring in the sequel 'The Invisible Actor'? 🎬🤔",
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.lato(
-                                          fontSize: 17, color: Colors.white),
-                                    ),
-                                  ),
-                              )
-                              : MovieTable(
-                                  movies: movies,
-                                  selectedActor: selectedActor,
-                                );
-                        }
-                      },
-                    ),
-                  ))
-                ],
-              ),
-          ),
+    return SelectionArea(
+      child: Theme(
+        data: ThemeData(
+          textSelectionTheme:
+              const TextSelectionThemeData(selectionColor: Colors.yellow),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: selectedActor == null
+              ? searchComponent()
+              : FadeIn(
+                  child: Row(
+                    children: [
+                      Expanded(child: searchComponent()),
+                      Expanded(
+                          child: Container(
+                        height: height(context),
+                        margin: EdgeInsets.only(top: 30, bottom: 30, right: 30),
+                        decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20)),
+                        child: FutureBuilder(
+                          future: getMoviesWithCast(selectedActor?.id ?? 0),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: SpinKitChasingDots(color: Colors.white),
+                              );
+                            } else if (snapshot.hasError) {
+                              return Text(
+                                'Error: ${snapshot.error}',
+                                style: TextStyle(color: Colors.white),
+                              );
+                            } else {
+                              final List<Movie> movies =
+                                  snapshot.data as List<Movie>;
+                              return movies.isEmpty
+                                  ? FadeIn(
+                                      child: Center(
+                                        child: Text(
+                                          "No Movies found for ${selectedActor?.name ?? "N/A"}\nMaybe they're starring in the sequel 'The Invisible Actor'? 🎬🤔",
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.lato(
+                                              fontSize: 17,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    )
+                                  : MovieTable(
+                                      movies: movies,
+                                      selectedActor: selectedActor,
+                                    );
+                            }
+                          },
+                        ),
+                      ))
+                    ],
+                  ),
+                ),
+        ),
+      ),
     );
   }
 
@@ -124,7 +135,9 @@ class _HomePageState extends State<HomePage> {
               child: TextFormField(
                 cursorColor: Colors.black,
                 style: GoogleFonts.lato(
-                    fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1),
                 controller: actorSearchCont,
                 onChanged: (val) {
                   getActorList(val);
@@ -148,8 +161,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                     fillColor: Colors.white,
                     filled: true,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 20),
                     hintText: 'Search for actor...',
                     hintStyle: GoogleFonts.lato(
                         color: Colors.grey, fontWeight: FontWeight.normal),
@@ -168,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                 : Container(),
             actorList != null && actorSearchCont.text.isNotEmpty && !isSearching
                 ? FadeIn(
-                  child: Container(
+                    child: Container(
                       height: (actorList?.results?.isEmpty ?? false)
                           ? height(context) * 0.2
                           : height(context) * 0.4,
@@ -195,14 +208,17 @@ class _HomePageState extends State<HomePage> {
                                     splashColor: Colors.transparent,
                                     highlightColor: Colors.transparent,
                                     onTap: () {
-                                      selectedActor = actorList?.results?[index];
+                                      selectedActor =
+                                          actorList?.results?[index];
                                       setState(() {});
                                     },
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          actorList?.results?[index].name ?? "N/A",
+                                          actorList?.results?[index].name ??
+                                              "N/A",
                                           style: GoogleFonts.lato(fontSize: 18),
                                         ),
                                         Row(
@@ -212,11 +228,12 @@ class _HomePageState extends State<HomePage> {
                                             Text(
                                               "Gender: ${getGender(actorList?.results?[index].gender ?? 0)}",
                                               style: GoogleFonts.lato(
-                                                  fontSize: 17, color: Colors.grey),
+                                                  fontSize: 17,
+                                                  color: Colors.grey),
                                             ),
                                             Container(
-                                              margin:
-                                                  EdgeInsets.symmetric(horizontal: 5),
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
                                               height: height(context) * 0.016,
                                               width: 2,
                                               color: Colors.grey.shade300,
@@ -224,7 +241,8 @@ class _HomePageState extends State<HomePage> {
                                             Text(
                                               "Language: ${(actorList?.results?[index].knownFor?.isEmpty ?? false) ? "N/A" : getLanguageName(actorList?.results?[index].knownFor?[0].originalLanguage ?? "N/A")}",
                                               style: GoogleFonts.lato(
-                                                  fontSize: 17, color: Colors.grey),
+                                                  fontSize: 17,
+                                                  color: Colors.grey),
                                             ),
                                           ],
                                         ),
@@ -235,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                                 );
                               }),
                     ),
-                )
+                  )
                 : Container()
           ],
         ),
