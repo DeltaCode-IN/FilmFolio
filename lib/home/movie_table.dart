@@ -28,7 +28,14 @@ class _MovieTableState extends State<MovieTable> {
     Future<void> _exportToCsv() async {
       try {
         String csvContent = const ListToCsvConverter().convert([
-          ['Sr No.', 'Film Name', 'Producers', 'Director', 'Writers'],
+          [
+            'Sr No.',
+            'Film Name',
+            'Producers',
+            'Director',
+            'Writers',
+            'Release Date'
+          ],
           ...widget.movies
               .asMap()
               .entries
@@ -39,6 +46,9 @@ class _MovieTableState extends State<MovieTable> {
                   entry.value.producers.isEmpty ? "N/A" : entry.value.producers,
                   entry.value.director.isEmpty ? "N/A" : entry.value.director,
                   entry.value.writers.isEmpty ? "N/A" : entry.value.writers,
+                  entry.value.releaseDate.isEmpty
+                      ? "N/A"
+                      : entry.value.releaseDate,
                 ],
               )
               .toList(),
@@ -48,7 +58,7 @@ class _MovieTableState extends State<MovieTable> {
         final url = html.Url.createObjectUrlFromBlob(blob);
         final anchor = html.AnchorElement(href: url)
           ..target = 'web-download'
-          ..download = 'movies.csv';
+          ..download = '${(widget.selectedActor?.name ?? "Movies")}.csv';
         anchor.click();
         html.Url.revokeObjectUrl(url);
 
@@ -136,6 +146,7 @@ class _MovieTableState extends State<MovieTable> {
                   DataColumn(label: Text('Producers', style: titleStyle)),
                   DataColumn(label: Text('Director', style: titleStyle)),
                   DataColumn(label: Text('Writers', style: titleStyle)),
+                  DataColumn(label: Text('R. Date', style: titleStyle)),
                 ],
                 rows: widget.movies
                     .asMap()
@@ -161,6 +172,11 @@ class _MovieTableState extends State<MovieTable> {
                               entry.value.writers.isEmpty
                                   ? "N/A"
                                   : entry.value.writers,
+                              style: titleStyle)),
+                          DataCell(Text(
+                              entry.value.releaseDate.isEmpty
+                                  ? "N/A"
+                                  : entry.value.releaseDate,
                               style: titleStyle)),
                         ],
                       ),

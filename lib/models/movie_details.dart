@@ -3,12 +3,14 @@ class Movie {
   final String producers;
   final String director;
   final String writers;
+  final String releaseDate;
 
   Movie({
     required this.movieName,
     required this.producers,
     required this.director,
     required this.writers,
+    required this.releaseDate,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class Movie {
       producers: json['Producers'] ?? '',
       director: json['Director'] ?? '',
       writers: json['Writers'] ?? '',
+      releaseDate: json['releaseDate'] ?? '',
     );
   }
 }

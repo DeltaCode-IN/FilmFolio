@@ -184,6 +184,8 @@ class _HomePageState extends State<HomePage> {
                           itemCount: actorList?.results?.length ?? 0,
                           itemBuilder: (_, index) {
                             return InkWell(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
                               onTap: () {
                                 selectedActor = actorList?.results?[index];
                                 setState(() {});

@@ -81,6 +81,7 @@ Future<List<Movie>> getMoviesWithCast(int actorId) async {
             producers: producers.join(', '),
             director: director,
             writers: writers.join(', '),
+            releaseDate: movie['release_date'],
           ));
         }
         page++;
