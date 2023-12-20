@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:html' as html;
+import 'package:animate_do/animate_do.dart';
 import 'package:csv/csv.dart';
 import 'package:filmfolio/constants.dart';
 import 'package:filmfolio/models/actor_model.dart';
@@ -69,122 +70,124 @@ class _MovieTableState extends State<MovieTable> {
     }
 
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.selectedActor?.originalName ?? "N/A",
-                        style: GoogleFonts.lato(
-                            fontSize: 25,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      15.height,
-                      Row(
-                        children: [
-                          detailChip(
-                              "Gender: ${getGender(widget.selectedActor?.gender ?? 0)}"),
-                          10.width,
-                          detailChip(
-                              "Known for: ${widget.selectedActor?.knownForDepartment ?? "N/A"}"),
-                          10.width,
-                          detailChip(
-                              "Language: ${(widget.selectedActor?.knownFor?.isEmpty ?? false) ? "N/A" : getLanguageName(widget.selectedActor?.knownFor?[0].originalLanguage ?? "N/A")}"),
-                        ],
-                      ),
-                    ],
+      child: FadeIn(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.selectedActor?.originalName ?? "N/A",
+                          style: GoogleFonts.lato(
+                              fontSize: 25,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        15.height,
+                        Row(
+                          children: [
+                            detailChip(
+                                "Gender: ${getGender(widget.selectedActor?.gender ?? 0)}"),
+                            10.width,
+                            detailChip(
+                                "Known for: ${widget.selectedActor?.knownForDepartment ?? "N/A"}"),
+                            10.width,
+                            detailChip(
+                                "Language: ${(widget.selectedActor?.knownFor?.isEmpty ?? false) ? "N/A" : getLanguageName(widget.selectedActor?.knownFor?[0].originalLanguage ?? "N/A")}"),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () => _exportToCsv(),
+                    child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Download CSV",
+                              style: GoogleFonts.lato(
+                                fontSize: 18,
+                                color: Colors.black,
+                              ),
+                            ),
+                            5.width,
+                            Icon(
+                              Icons.downloading,
+                              color: Colors.black,
+                            )
+                          ],
+                        )),
+                  ),
+                ],
+              ),
+              20.height,
+              Theme(
+                data: Theme.of(context).copyWith(
+                  dividerColor: Colors.grey.withOpacity(0.4),
+                  dividerTheme: DividerThemeData(
+                    color: Colors.grey.withOpacity(0.4),
                   ),
                 ),
-                InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () => _exportToCsv(),
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Download CSV",
-                            style: GoogleFonts.lato(
-                              fontSize: 18,
-                              color: Colors.black,
-                            ),
-                          ),
-                          5.width,
-                          Icon(
-                            Icons.downloading,
-                            color: Colors.black,
-                          )
-                        ],
-                      )),
-                ),
-              ],
-            ),
-            20.height,
-            Theme(
-              data: Theme.of(context).copyWith(
-                dividerColor: Colors.grey.withOpacity(0.4),
-                dividerTheme: DividerThemeData(
-                  color: Colors.grey.withOpacity(0.4),
+                child: DataTable(
+                  dividerThickness: 0.5,
+                  columns: [
+                    DataColumn(label: Text('#', style: titleStyle)),
+                    DataColumn(label: Text('Movie', style: titleStyle)),
+                    DataColumn(label: Text('Producers', style: titleStyle)),
+                    DataColumn(label: Text('Director', style: titleStyle)),
+                    DataColumn(label: Text('Writers', style: titleStyle)),
+                    DataColumn(label: Text('R. Date', style: titleStyle)),
+                  ],
+                  rows: widget.movies
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => DataRow(
+                          cells: [
+                            DataCell(Text((entry.key + 1).toString(),
+                                style: titleStyle)),
+                            DataCell(
+                                Text(entry.value.movieName, style: titleStyle)),
+                            DataCell(Text(
+                                entry.value.producers.isEmpty
+                                    ? "N/A"
+                                    : entry.value.producers,
+                                style: titleStyle)),
+                            DataCell(Text(
+                                entry.value.director.isEmpty
+                                    ? "N/A"
+                                    : entry.value.director,
+                                style: titleStyle)),
+                            DataCell(Text(
+                                entry.value.writers.isEmpty
+                                    ? "N/A"
+                                    : entry.value.writers,
+                                style: titleStyle)),
+                            DataCell(Text(
+                                entry.value.releaseDate.isEmpty
+                                    ? "N/A"
+                                    : entry.value.releaseDate,
+                                style: titleStyle)),
+                          ],
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
-              child: DataTable(
-                dividerThickness: 0.5,
-                columns: [
-                  DataColumn(label: Text('#', style: titleStyle)),
-                  DataColumn(label: Text('Movie', style: titleStyle)),
-                  DataColumn(label: Text('Producers', style: titleStyle)),
-                  DataColumn(label: Text('Director', style: titleStyle)),
-                  DataColumn(label: Text('Writers', style: titleStyle)),
-                  DataColumn(label: Text('R. Date', style: titleStyle)),
-                ],
-                rows: widget.movies
-                    .asMap()
-                    .entries
-                    .map(
-                      (entry) => DataRow(
-                        cells: [
-                          DataCell(Text((entry.key + 1).toString(),
-                              style: titleStyle)),
-                          DataCell(
-                              Text(entry.value.movieName, style: titleStyle)),
-                          DataCell(Text(
-                              entry.value.producers.isEmpty
-                                  ? "N/A"
-                                  : entry.value.producers,
-                              style: titleStyle)),
-                          DataCell(Text(
-                              entry.value.director.isEmpty
-                                  ? "N/A"
-                                  : entry.value.director,
-                              style: titleStyle)),
-                          DataCell(Text(
-                              entry.value.writers.isEmpty
-                                  ? "N/A"
-                                  : entry.value.writers,
-                              style: titleStyle)),
-                          DataCell(Text(
-                              entry.value.releaseDate.isEmpty
-                                  ? "N/A"
-                                  : entry.value.releaseDate,
-                              style: titleStyle)),
-                        ],
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
