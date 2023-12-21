@@ -1,27 +1,15 @@
 class Movie {
-  final String movieName;
-  final String producers;
-  final String director;
-  final String writers;
-  final String releaseDate;
+  final String movieName, releaseDate, language;
+  final double popularity;
+  final Map<String, String> crewDetails;
 
   Movie({
     required this.movieName,
-    required this.producers,
-    required this.director,
-    required this.writers,
     required this.releaseDate,
+    required this.popularity,
+    required this.language,
+    required this.crewDetails,
   });
-
-  factory Movie.fromJson(Map<String, dynamic> json) {
-    return Movie(
-      movieName: json['MovieName'] ?? '',
-      producers: json['Producers'] ?? '',
-      director: json['Director'] ?? '',
-      writers: json['Writers'] ?? '',
-      releaseDate: json['releaseDate'] ?? '',
-    );
-  }
 }
 
 class MovieCredits {

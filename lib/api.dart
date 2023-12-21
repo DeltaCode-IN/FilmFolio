@@ -65,26 +65,22 @@ Future<List<Movie>> getMoviesWithCast(int actorId) async {
           for (var movie in data['results']) {
             final movieId = movie['id'] ?? '';
             final creditsData = await getMovieCredits(movieId);
+            final Map<String, String> crewDetails = {};
 
-            final producers = [
-              for (var crew in creditsData.crew)
-                if (crew['job'] == 'Producer') crew['name']
-            ];
-            final director = (creditsData.crew).firstWhere(
-                    (crew) => crew['job'] == 'Director',
-                    orElse: () => {})['name'] ??
-                '';
-            final writers = [
-              for (var crew in creditsData.crew)
-                if (crew['job'] == 'Writer') crew['name']
-            ];
+               for (var crewMember in creditsData.crew) {
+              final department = crewMember['known_for_department'];
+              final name = crewMember['name'];
+              crewDetails[department] = name;
+            }
+
+          
 
             allMovies.add(Movie(
-              movieName: movie['title'] ?? '',
-              producers: producers.join(', '),
-              director: director,
-              writers: writers.join(', '),
-              releaseDate: movie['release_date'] ?? '',
+              movieName: movie['title'],
+              releaseDate: movie['release_date'],
+              popularity: movie['popularity'].toDouble(),
+              language: movie['original_language'],
+              crewDetails: crewDetails,
             ));
           }
           page++;

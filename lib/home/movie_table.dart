@@ -22,9 +22,27 @@ class MovieTable extends StatefulWidget {
 }
 
 class _MovieTableState extends State<MovieTable> {
+      final Set<String> allCrewRoles = {};
+
+
+      void setCrew() {
+      for (var movie in widget.movies) {
+        allCrewRoles.addAll(movie.crewDetails.keys);
+      }
+    }
+
+    @override
+    void initState() {
+      super.initState();
+      setCrew();
+    }
+
+
+
   @override
   Widget build(BuildContext context) {
     TextStyle titleStyle = GoogleFonts.lato(fontSize: 17, color: Colors.white);
+
 
     Future<void> _exportToCsv() async {
       try {
@@ -32,10 +50,10 @@ class _MovieTableState extends State<MovieTable> {
           [
             'Sr No.',
             'Film Name',
-            'Producers',
-            'Director',
-            'Writers',
-            'Release Date'
+            'Release Date',
+            'Popularity',
+            'Language',
+            ...allCrewRoles
           ],
           ...widget.movies
               .asMap()
@@ -43,13 +61,12 @@ class _MovieTableState extends State<MovieTable> {
               .map(
                 (entry) => [
                   entry.key + 1,
-                  entry.value.movieName.isEmpty ? "N/A" : entry.value.movieName,
-                  entry.value.producers.isEmpty ? "N/A" : entry.value.producers,
-                  entry.value.director.isEmpty ? "N/A" : entry.value.director,
-                  entry.value.writers.isEmpty ? "N/A" : entry.value.writers,
-                  entry.value.releaseDate.isEmpty
-                      ? "N/A"
-                      : entry.value.releaseDate,
+                  entry.value.movieName.isEmpty ? "N/A" :entry.value.movieName ,
+                  entry.value.releaseDate.isEmpty ? "N/A" :  entry.value.releaseDate,
+                  entry.value.popularity.toString().isEmpty ? "N/A" :  entry.value.popularity,
+                  entry.value.language.isEmpty ? "N/A" :    getLanguageName(entry.value.language),
+                  ...allCrewRoles
+                      .map((role) => entry.value.crewDetails[role] ?? 'N/A'),
                 ],
               )
               .toList(),
@@ -69,14 +86,13 @@ class _MovieTableState extends State<MovieTable> {
       }
     }
 
-    return RawScrollbar(
-      child: SingleChildScrollView(
-        child: FadeIn(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Row(
+    return
+    Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: 
+     Column(
+       children: [
+ Row(
                   children: [
                     Expanded(
                       child: Column(
@@ -134,65 +150,80 @@ class _MovieTableState extends State<MovieTable> {
                   ],
                 ),
                 20.height,
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    dividerColor: Colors.grey.withOpacity(0.4),
-                    dividerTheme: DividerThemeData(
-                      color: Colors.grey.withOpacity(0.4),
-                    ),
-                  ),
-                  child: DataTable(
-                    dividerThickness: 0.5,
-                    columns: [
-                      DataColumn(label: Text('#', style: titleStyle)),
-                      DataColumn(label: Text('Movie', style: titleStyle)),
-                      DataColumn(label: Text('Producers', style: titleStyle)),
-                      DataColumn(label: Text('Director', style: titleStyle)),
-                      DataColumn(label: Text('Writers', style: titleStyle)),
-                      DataColumn(label: Text('R. Date', style: titleStyle)),
+         Expanded(
+           child: RawScrollbar(
+            child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: FadeIn(
+                child: Column(
+                    children: [
+                      
+                      Theme(
+                            data: Theme.of(context).copyWith(
+                              dividerColor: Colors.grey.withOpacity(0.4),
+                              dividerTheme: DividerThemeData(
+                                color: Colors.grey.withOpacity(0.4),
+                              ),
+                            ),
+                            child: DataTable(
+                              dividerThickness: 0.5,
+                              columns: [
+                                DataColumn(label: Text('#', style: titleStyle)),
+                                DataColumn(label: Text('Movie', style: titleStyle)),
+                                DataColumn(
+                                    label: Text('Release Date', style: titleStyle)),
+                                DataColumn(label: Text('Popularity', style: titleStyle)),
+                                DataColumn(label: Text('Language', style: titleStyle)),
+                                ...allCrewRoles.map((role) =>
+                                    DataColumn(label: Text(role, style: titleStyle))),
+                              ],
+                              rows: widget.movies
+                                  .asMap()
+                                  .entries
+                                  .map(
+                                    (entry) => DataRow(
+                                      cells: [
+                                        DataCell(Text((entry.key + 1).toString(),
+                                            style: titleStyle)),
+                                        DataCell(Text(
+                                            entry.value.movieName.isEmpty
+                                                ? "N/A"
+                                                : entry.value.movieName,
+                                            style: titleStyle)),
+                                        DataCell(Text(
+                                            entry.value.releaseDate.isEmpty
+                                                ? "N/A"
+                                                : entry.value.releaseDate,
+                                            style: titleStyle)),
+                                        DataCell(Text(
+                                            entry.value.popularity.toString().isEmpty
+                                                ? "N/A"
+                                                : entry.value.popularity.toString(),
+                                            style: titleStyle)),
+                                        DataCell(Text(
+                                            entry.value.language.isEmpty
+                                                ? "N/A"
+                                                :  getLanguageName(entry.value.language),
+                                            style: titleStyle)),
+                                        ...allCrewRoles.map((role) => DataCell(Text(
+                                            entry.value.crewDetails[role] ?? 'N/A',
+                                            style: titleStyle))),
+                                      ],
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                      ),
                     ],
-                    rows: widget.movies
-                        .asMap()
-                        .entries
-                        .map(
-                          (entry) => DataRow(
-                            cells: [
-                              DataCell(Text((entry.key + 1).toString(),
-                                  style: titleStyle)),
-                              DataCell(Text(entry.value.movieName,
-                                  style: titleStyle)),
-                              DataCell(Text(
-                                  entry.value.producers.isEmpty
-                                      ? "N/A"
-                                      : entry.value.producers,
-                                  style: titleStyle)),
-                              DataCell(Text(
-                                  entry.value.director.isEmpty
-                                      ? "N/A"
-                                      : entry.value.director,
-                                  style: titleStyle)),
-                              DataCell(Text(
-                                  entry.value.writers.isEmpty
-                                      ? "N/A"
-                                      : entry.value.writers,
-                                  style: titleStyle)),
-                              DataCell(Text(
-                                  entry.value.releaseDate.isEmpty
-                                      ? "N/A"
-                                      : entry.value.releaseDate,
-                                  style: titleStyle)),
-                            ],
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+                  
+              
+            ),),
+            ),),),
+         ),
+       ],
+     ), );
   }
 
   Widget detailChip(String detail) {
