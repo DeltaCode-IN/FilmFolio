@@ -67,19 +67,17 @@ Future<List<Movie>> getMoviesWithCast(int actorId) async {
             final creditsData = await getMovieCredits(movieId);
             final Map<String, String> crewDetails = {};
 
-               for (var crewMember in creditsData.crew) {
+            for (var crewMember in creditsData.crew) {
               final department = crewMember['known_for_department'];
               final name = crewMember['name'];
               crewDetails[department] = name;
             }
 
-          
-
             allMovies.add(Movie(
-              movieName: movie['title'],
-              releaseDate: movie['release_date'],
+              movieName: movie['title'] ?? "",
+              releaseDate: movie['release_date'] ?? "",
               popularity: movie['popularity'].toDouble(),
-              language: movie['original_language'],
+              language: movie['original_language'] ?? "",
               crewDetails: crewDetails,
             ));
           }
