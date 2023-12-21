@@ -121,11 +121,17 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left:10,top:10),
+                child: Image(image: AssetImage('assets/lottie/dclogo.png',),height: 80, width: 80,),
+              )),
             Lottie.asset(
               'assets/lottie/search.json',
-              height: height(context) * 0.45,
-              width: height(context) * 0.45,
-              fit: BoxFit.cover,
+              height: height(context) * 0.35,
+              width: height(context) * 0.35,
+              fit: BoxFit.fill,
             ),
             20.height,
             Padding(
