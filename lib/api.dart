@@ -31,7 +31,7 @@ Future<ActorModel?> searchActor(String name) async {
 }
 
 Future<MovieCredits> getMovieCredits(int movieId) async {
-  final creditsUrl = 'http://api.themoviedb.org/3/movie/$movieId/credits';
+  final creditsUrl = 'https://api.themoviedb.org/3/movie/$movieId/credits';
   final response = await http.get(Uri.parse(creditsUrl), headers: {
     // 'x-access-token': apiKey,
     'Authorization': 'Bearer $token',
@@ -46,7 +46,7 @@ Future<MovieCredits> getMovieCredits(int movieId) async {
 }
 
 Future<List<Movie>> getMoviesWithCast(int actorId) async {
-  const baseUrl = 'http://api.themoviedb.org/3/discover/movie';
+  const baseUrl = 'https://api.themoviedb.org/3/discover/movie';
   final List<Movie> allMovies = [];
   int page = 1;
   try {
