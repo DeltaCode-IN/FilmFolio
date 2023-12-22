@@ -65,6 +65,11 @@ Future<List<Movie>> getMoviesWithCast(int actorId) async {
           for (var movie in data['results']) {
             final movieId = movie['id'] ?? '';
             final creditsData = await getMovieCredits(movieId);
+
+            final cast = extractCastDetails(creditsData.cast);
+            final crew = extractCrewDetails(creditsData.crew);
+
+
             final Map<String, String> crewDetails = {};
 
             for (var crewMember in creditsData.crew) {
@@ -73,12 +78,13 @@ Future<List<Movie>> getMoviesWithCast(int actorId) async {
               crewDetails[department] = name;
             }
 
-            allMovies.add(Movie(
-              movieName: movie['title'] ?? "",
-              releaseDate: movie['release_date'] ?? "",
+             allMovies.add(Movie(
+              movieName: movie['title'] ?? '',
+              releaseDate: movie['release_date'] ?? '',
               popularity: movie['popularity'].toDouble(),
-              language: movie['original_language'] ?? "",
-              crewDetails: crewDetails,
+              language: movie['original_language'] ?? '',
+              cast: cast,
+              crew: crew,
             ));
           }
           page++;
@@ -94,4 +100,26 @@ Future<List<Movie>> getMoviesWithCast(int actorId) async {
   }
 
   return allMovies;
+}
+
+Map<String, dynamic> extractCastDetails(List<Map<String, dynamic>> castList) {
+  Map<String, dynamic> castDetails = {'actor': [], 'actress': []};
+
+  for (var member in castList) {
+    final gender = member['gender'];
+    final department = member['known_for_department'];
+    final name = member['name'];
+
+    if (gender == 2) {
+      castDetails['actor'].add({'name': name, 'department': department});
+    } else {
+      castDetails['actress'].add({'name': name, 'department': department});
+    }
+  }
+
+  return castDetails;
+}
+
+List<Map<String, dynamic>> extractCrewDetails(List<Map<String, dynamic>> crewList) {
+  return crewList.map((member) => {'name': member['name'], 'department': member['department']}).toList();
 }

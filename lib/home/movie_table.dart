@@ -23,23 +23,32 @@ class MovieTable extends StatefulWidget {
 
 class _MovieTableState extends State<MovieTable> {
   final Set<String> allCrewRoles = {};
-  final ScrollController _scrollController = ScrollController();
 
-  void setCrew() {
+  List<String> getAllCrewRoles() {
+    List<String> allRoles = [];
     for (var movie in widget.movies) {
-      allCrewRoles.addAll(movie.crewDetails.keys);
+      for (var crewMember in movie.crew) {
+        final role = crewMember['department'];
+        if (!allRoles.contains(role)) {
+          allRoles.add(role);
+        }
+      }
     }
+    return allRoles;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    setCrew();
+  String getCastDetails(List<dynamic> castList) {
+    return castList.map((cast) => '${cast['name']}').join(', ');
+  }
+
+  String getCrewDetails(List<Map<String, dynamic>> crewList, String role) {
+    return '${crewList.where((crew) => crew['department'] == role).map((crew) => '${crew['name']}').join(', ')} ';
   }
 
   @override
   Widget build(BuildContext context) {
     TextStyle titleStyle = GoogleFonts.lato(fontSize: 17, color: Colors.white);
+    List<String> allCrewRoles = getAllCrewRoles();
 
     Future<void> _exportToCsv() async {
       try {
@@ -48,6 +57,8 @@ class _MovieTableState extends State<MovieTable> {
             'Sr No.',
             'Film Name',
             'Release Date',
+            "Actor",
+            "Actress",
             'Popularity',
             'Language',
             ...allCrewRoles
@@ -62,14 +73,22 @@ class _MovieTableState extends State<MovieTable> {
                   entry.value.releaseDate.isEmpty
                       ? "N/A"
                       : entry.value.releaseDate,
+                  getCastDetails(entry.value.cast['actor']).trim().isEmpty
+                      ? "N/A"
+                      : getCastDetails(entry.value.cast['actor']),
+                  getCastDetails(entry.value.cast['actress']).trim().isEmpty
+                      ? "N/A"
+                      : getCastDetails(entry.value.cast['actress']),
                   entry.value.popularity.toString().isEmpty
                       ? "N/A"
                       : entry.value.popularity,
                   entry.value.language.isEmpty
                       ? "N/A"
                       : getLanguageName(entry.value.language),
-                  ...allCrewRoles
-                      .map((role) => entry.value.crewDetails[role] ?? 'N/A'),
+                  ...allCrewRoles.map((role) =>
+                      getCrewDetails(entry.value.crew, role).trim().isEmpty
+                          ? "N/A"
+                          : getCrewDetails(entry.value.crew, role)),
                 ],
               )
               .toList(),
@@ -153,7 +172,6 @@ class _MovieTableState extends State<MovieTable> {
           20.height,
           Expanded(
             child: RawScrollbar(
-              radius: Radius.circular(20),
               child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: SingleChildScrollView(
@@ -177,6 +195,10 @@ class _MovieTableState extends State<MovieTable> {
                               DataColumn(
                                   label:
                                       Text('Release Date', style: titleStyle)),
+                              DataColumn(
+                                  label: Text('Actor', style: titleStyle)),
+                              DataColumn(
+                                  label: Text('Actress', style: titleStyle)),
                               DataColumn(
                                   label: Text('Popularity', style: titleStyle)),
                               DataColumn(
@@ -203,6 +225,25 @@ class _MovieTableState extends State<MovieTable> {
                                               : entry.value.releaseDate,
                                           style: titleStyle)),
                                       DataCell(Text(
+                                          getCastDetails(
+                                                      entry.value.cast['actor'])
+                                                  .trim()
+                                                  .isEmpty
+                                              ? "N/A"
+                                              : getCastDetails(
+                                                  entry.value.cast['actor'],
+                                                ),
+                                          style: titleStyle)),
+                                      DataCell(Text(
+                                          getCastDetails(entry
+                                                      .value.cast['actress'])
+                                                  .trim()
+                                                  .isEmpty
+                                              ? "N/A"
+                                              : getCastDetails(
+                                                  entry.value.cast['actress']),
+                                          style: titleStyle)),
+                                      DataCell(Text(
                                           entry.value.popularity
                                                   .toString()
                                                   .isEmpty
@@ -218,8 +259,13 @@ class _MovieTableState extends State<MovieTable> {
                                           style: titleStyle)),
                                       ...allCrewRoles.map((role) => DataCell(
                                           Text(
-                                              entry.value.crewDetails[role] ??
-                                                  'N/A',
+                                              getCrewDetails(entry.value.crew,
+                                                          role)
+                                                      .trim()
+                                                      .isEmpty
+                                                  ? "N/A"
+                                                  : getCrewDetails(
+                                                      entry.value.crew, role),
                                               style: titleStyle))),
                                     ],
                                   ),
