@@ -171,8 +171,7 @@ class _MovieTableState extends State<MovieTable> {
           ),
           20.height,
           Expanded(
-            child: RawScrollbar(
-              child: SingleChildScrollView(
+            child:  SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -279,7 +278,7 @@ class _MovieTableState extends State<MovieTable> {
                 ),
               ),
             ),
-          ),
+          
         ],
       ),
     );
