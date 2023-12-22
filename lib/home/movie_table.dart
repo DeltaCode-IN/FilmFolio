@@ -171,7 +171,9 @@ class _MovieTableState extends State<MovieTable> {
           ),
           20.height,
           Expanded(
-            child:  SingleChildScrollView(
+            child: RawScrollbar(
+              radius: Radius.circular(20),
+              child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -185,7 +187,7 @@ class _MovieTableState extends State<MovieTable> {
                               color: Colors.grey.withOpacity(0.4),
                             ),
                           ),
-                          child: DataTable(
+                          child:  DataTable(
                             dividerThickness: 0.5,
                             columns: [
                               DataColumn(label: Text('#', style: titleStyle)),
@@ -278,7 +280,7 @@ class _MovieTableState extends State<MovieTable> {
                 ),
               ),
             ),
-          
+          ),
         ],
       ),
     );
