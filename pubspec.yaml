@@ -43,6 +43,7 @@ dependencies:
   path_provider: ^2.1.1
   csv: ^5.1.1
   animate_do: ^3.0.2
+  html: ^0.15.4
 
 dev_dependencies:
   flutter_test:

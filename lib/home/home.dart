@@ -4,6 +4,7 @@ import 'package:filmfolio/constants.dart';
 import 'package:filmfolio/home/movie_table.dart';
 import 'package:filmfolio/models/actor_model.dart';
 import 'package:filmfolio/models/movie_details.dart';
+import 'package:filmfolio/wiki.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,9 +22,10 @@ class _HomePageState extends State<HomePage> {
   ActorModel? actorList;
   Actor? selectedActor;
   TextEditingController actorSearchCont = TextEditingController();
+  bool isWiki = false;
   bool isSearching = false;
-
   bool isDetailsLoading = false;
+  String wikiUrl = "";
 
   setDetailsLoader(bool val) {
     setState(() {
@@ -55,61 +57,81 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Scaffold(
           backgroundColor: Colors.black,
-          body: selectedActor == null
-              ? searchComponent()
-              : FadeIn(
+          body: isWiki &&
+                  (wikiUrl.isNotEmpty && actorSearchCont.text.isNotEmpty)
+              ? FadeIn(
                   child: Row(
                     children: [
                       Expanded(child: searchComponent()),
-                      Expanded(
-                          child: Container(
-                        height: height(context),
-                        margin: EdgeInsets.only(top: 30, bottom: 30, right: 30),
-                        decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20)),
-                        child: FutureBuilder(
-                          future: getMoviesWithCast(selectedActor?.id ?? 0),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                child: SpinKitChasingDots(color: Colors.white),
-                              );
-                            } else if (snapshot.hasError) {
-                              return Text(
-                                'Error: ${snapshot.error}',
-                                style: TextStyle(color: Colors.white),
-                              );
-                            } else {
-                              final List<Movie> movies =
-                                  snapshot.data as List<Movie>;
-                              return movies.isEmpty
-                                  ? FadeIn(
-                                      child: Center(
-                                        child: Text(
-                                          "No Movies found for ${selectedActor?.name ?? "N/A"}\nMaybe they're starring in the sequel 'The Invisible Actor'? 🎬🤔",
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.lato(
-                                              fontSize: 17,
-                                              color: Colors.white),
-                                        ),
-                                      ),
-                                    )
-                                  : MovieTable(
-                                      movies: movies,
-                                      selectedActor: selectedActor,
-                                    );
-                            }
-                          },
-                        ),
-                      ))
+                      Expanded(child: WikiTable(url: wikiUrl)),
                     ],
                   ),
-                ),
+                )
+              : selectedActor == null
+                  ? searchComponent()
+                  : FadeIn(
+                      child: Row(
+                        children: [
+                          Expanded(child: searchComponent()),
+                          Expanded(
+                              child: Container(
+                            height: height(context),
+                            margin:
+                                EdgeInsets.only(top: 30, bottom: 30, right: 30),
+                            decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: FutureBuilder(
+                              future: getMoviesWithCast(selectedActor?.id ?? 0),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child:
+                                        SpinKitChasingDots(color: Colors.white),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Text(
+                                    'Error: ${snapshot.error}',
+                                    style: TextStyle(color: Colors.white),
+                                  );
+                                } else {
+                                  final List<Movie> movies =
+                                      snapshot.data as List<Movie>;
+                                  return movies.isEmpty
+                                      ? FadeIn(
+                                          child: Center(
+                                            child: Text(
+                                              "No Movies found for ${selectedActor?.name ?? "N/A"}\nMaybe they're starring in the sequel 'The Invisible Actor'? 🎬🤔",
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.lato(
+                                                  fontSize: 17,
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        )
+                                      : MovieTable(
+                                          movies: movies,
+                                          selectedActor: selectedActor,
+                                        );
+                                }
+                              },
+                            ),
+                          ))
+                        ],
+                      ),
+                    ),
         ),
       ),
     );
+  }
+
+  reset() {
+    isSearching = false;
+    isDetailsLoading = false;
+    selectedActor = null;
+    actorList = null;
+    setState(() {});
   }
 
   Widget searchComponent() {
@@ -121,21 +143,93 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left:10,top:10),
-                child: Image(image: AssetImage('assets/lottie/dclogo.png',),height: 80, width: 80,),
-              )),
-            Lottie.asset(
-              'assets/lottie/search.json',
-              height: height(context) * 0.35,
-              width: height(context) * 0.35,
-              fit: BoxFit.fill,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10, top: 5),
+                      child: Image(
+                        image: AssetImage(
+                          'assets/lottie/dclogo.png',
+                        ),
+                        height: 80,
+                        width: 80,
+                      ),
+                    )),
+                Spacer(),
+                Padding(
+                  padding: EdgeInsets.only(right: width(context) * 0.07),
+                  child: Lottie.asset(
+                    'assets/lottie/search.json',
+                    height: height(context) * 0.4,
+                    width: height(context) * 0.4,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Spacer(),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () {
+                    isWiki = false;
+                    reset();
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                        border: isWiki ? null : Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Center(
+                      child: Text(
+                        "Movie DB",
+                        style: GoogleFonts.lato(
+                            fontSize: 16,
+                            color: isWiki ? Colors.grey : Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: width(context) * 0.18,
+                ),
+                InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () {
+                    isWiki = true;
+                    reset();
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                        border: isWiki ? Border.all(color: Colors.white) : null,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Center(
+                      child: Text(
+                        "Wiki",
+                        style: GoogleFonts.lato(
+                            fontSize: 16,
+                            color: isWiki ? Colors.white : Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             20.height,
             Padding(
-              padding: selectedActor != null
+              padding: selectedActor != null ||
+                      (wikiUrl.isNotEmpty && actorSearchCont.text.isNotEmpty)
                   ? EdgeInsets.symmetric(horizontal: width(context) * 0.1)
                   : EdgeInsets.symmetric(horizontal: width(context) * 0.35),
               child: TextFormField(
@@ -146,10 +240,12 @@ class _HomePageState extends State<HomePage> {
                     letterSpacing: 1),
                 controller: actorSearchCont,
                 onChanged: (val) {
-                  getActorList(val);
+                  if (!isWiki) {
+                    getActorList(val);
+                  }
                 },
                 decoration: InputDecoration(
-                    suffixIcon: actorSearchCont.text.isEmpty
+                    suffixIcon: actorSearchCont.text.isEmpty || wikiUrl.isEmpty
                         ? null
                         : Padding(
                             padding: const EdgeInsets.only(right: 15.0),
@@ -169,13 +265,23 @@ class _HomePageState extends State<HomePage> {
                     filled: true,
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 15, vertical: 20),
-                    hintText: 'Search for actor...',
+                    hintText: isWiki ? 'Enter Url' : 'Search for actor...',
                     hintStyle: GoogleFonts.lato(
                         color: Colors.grey, fontWeight: FontWeight.normal),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30))),
                 onFieldSubmitted: (_) {
-                  hideKeyboard(context);
+                  if (isWiki) {
+                    if (actorSearchCont.text
+                        .contains("https://en.wikipedia.org/wiki/")) {
+                      wikiUrl = actorSearchCont.text;
+                      setState(() {});
+                      // navigation(
+                      //     context, WikiTable(url: actorSearchCont.text), true);
+                    } else {
+                      toast("Invalid Url");
+                    }
+                  }
                 },
               ),
             ),
