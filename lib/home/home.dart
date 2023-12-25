@@ -179,6 +179,8 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(20),
                   onTap: () {
                     isWiki = false;
+                    actorList = null;
+                    actorSearchCont.clear();
                     reset();
                   },
                   child: Container(
@@ -205,6 +207,9 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(20),
                   onTap: () {
                     isWiki = true;
+                    actorList = null;
+                    actorSearchCont.clear();
+
                     reset();
                   },
                   child: Container(
@@ -240,12 +245,17 @@ class _HomePageState extends State<HomePage> {
                     letterSpacing: 1),
                 controller: actorSearchCont,
                 onChanged: (val) {
+                  actorList = null;
+                  wikiUrl = '';
+                  if (mounted) {
+                    setState(() {});
+                  }
                   if (!isWiki) {
                     getActorList(val);
                   }
                 },
                 decoration: InputDecoration(
-                    suffixIcon: actorSearchCont.text.isEmpty || wikiUrl.isEmpty
+                    suffixIcon: actorSearchCont.text.isEmpty
                         ? null
                         : Padding(
                             padding: const EdgeInsets.only(right: 15.0),
@@ -271,11 +281,12 @@ class _HomePageState extends State<HomePage> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30))),
                 onFieldSubmitted: (_) {
+                  setState(() {});
                   if (isWiki) {
                     if (actorSearchCont.text
                         .contains("https://en.wikipedia.org/wiki/")) {
                       wikiUrl = actorSearchCont.text;
-                      setState(() {});
+
                       // navigation(
                       //     context, WikiTable(url: actorSearchCont.text), true);
                     } else {
