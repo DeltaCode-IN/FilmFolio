@@ -197,3 +197,6 @@ navigation(BuildContext context, Widget navigateTo, bool? isRoot) {
       return "N/A";
     }
   }
+
+String username = "admin";
+String password = "Pass@123";

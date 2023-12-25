@@ -1,4 +1,5 @@
 import 'package:filmfolio/home/home.dart';
+import 'package:filmfolio/login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const LoginPage(),
     );
   }
 }
