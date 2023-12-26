@@ -135,7 +135,13 @@ class _WikiTableState extends State<WikiTable> {
           print('$filmName - $filmLink');
 
           if (filmLink.isNotEmpty) {
-            await getFilmDetails(filmName, filmLink);
+            try {
+              await getFilmDetails(filmName, filmLink);
+            } catch (e) {
+              filmDetailsList.add(FilmDetails(title: filmName, details: {}));
+            }
+          } else {
+            filmDetailsList.add(FilmDetails(title: filmName, details: {}));
           }
         }
       } else {
@@ -218,12 +224,15 @@ class _WikiTableState extends State<WikiTable> {
   }
 
   Future<void> getFilmDetails(String name, String url) async {
+    if (url == 'https://en.wikipedia.org/wiki/Ente_Katha') {
+      print('test');
+    }
     final resp = await http.Client().get(Uri.parse(url));
     Map<String, String> filmDetails = {};
 
     if (resp.statusCode == 200) {
       var document = parse(resp.body);
-      var table = document.getElementsByClassName('infobox vevent')[0];
+      var table = document.getElementsByClassName('infobox')[0];
       var rows = table.children[0];
 
       for (var row in rows.children) {
