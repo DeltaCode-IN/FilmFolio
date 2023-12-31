@@ -84,7 +84,6 @@ class _WikiTableState extends State<WikiTable> {
           while (true) {
             t = t.nextElementSibling!;
             if (t.className.contains('wikitable') &&
-                t.className.contains('sortable') &&
                 t.className.contains('plainrowheaders')) {
               break;
             }
@@ -95,7 +94,6 @@ class _WikiTableState extends State<WikiTable> {
           var ts = document.getElementsByTagName('table');
           for (var t in ts) {
             if (t.className.contains('wikitable') &&
-                t.className.contains('sortable') &&
                 t.className.contains('plainrowheaders')) {
               rows = t.getElementsByTagName('tbody')[0];
               break;
